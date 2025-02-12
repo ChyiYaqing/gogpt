@@ -10,12 +10,20 @@ import (
 	"syscall"
 
 	"github.com/chyiyaqing/gogpt/internal/config"
+	"github.com/chyiyaqing/gogpt/internal/logger"
 	"github.com/chyiyaqing/gogpt/internal/ollama"
 )
 
 func main() {
+	// 初始化日志
+	log := logger.NewLogger()
+	log.Info("Starting Ollama Chat Client...")
+
 	// 加载配置
-	cfg := config.LoadConfig()
+	cfg, err := config.Load("config/config.yaml")
+	if err != nil {
+		log.Fatal("Failed to load config:", err)
+	}
 
 	// 创建客户端
 	client := ollama.NewClient(cfg)
@@ -33,6 +41,12 @@ func main() {
 		fmt.Println("Received interrupt signal, exiting...")
 		cancel()
 	}()
+
+	// 检查服务健康状态
+	if err := client.Health(ctx); err != nil {
+		log.Fatal("Failed to connect to Ollama service:", err)
+		return
+	}
 
 	// 创建对话历史
 	conversation := []ollama.Message{}
