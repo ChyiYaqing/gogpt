@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -72,7 +72,7 @@ func (c *OllamaClient) Chat(modelName string, messages []Message) (*ChatResponse
 	defer resp.Body.Close()
 
 	// 读取响应
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("read response failed: %v", err)
 	}
